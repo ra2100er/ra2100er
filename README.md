@@ -1,38 +1,44 @@
-import requests
-from bs4 import BeautifulSoup
-import random
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
-def get_random_picture(url):
-    # Send a GET request to the specified URL
-    response = requests.get(url)
-    
-    # Check if the request was successful
-    if response.status_code == 200:
-        # Parse the HTML content of the webpage
-        soup = BeautifulSoup(response.content, 'html.parser')
-        
-        # Find all image tags
-        img_tags = soup.find_all('img')
-        
-        # Extract the src attribute from each image tag
-        image_sources = [img['src'] for img in img_tags]
-        
-        # Filter out image sources that are empty or None
-        image_sources = [src for src in image_sources if src]
-        
-        # Select a random image source from the list
-        random_image_source = random.choice(image_sources)
-        
-        # Print the selected image source
-        print("Random Image Source:", random_image_source)
-        
-        # Return the selected image source
-        return random_image_source
-    else:
-        # If the request was not successful, print an error message
-        print("Error: Failed to fetch URL:", url)
-        return None
+public class RandomPictureSelector {
 
-# Example usage:
-url = "https://www.flickr.com/search/?text=tractor"
-random_picture_url = get_random_picture(url)
+    public static void main(String[] args) {
+        String url = "https://www.flickr.com/search/?text=tractor";
+        String randomPictureUrl = getRandomPicture(url);
+        System.out.println("Random Picture Source: " + randomPictureUrl);
+    }
+
+    public static String getRandomPicture(String url) {
+        try {
+            // Fetch the HTML content of the webpage
+            Document doc = Jsoup.connect(url).get();
+
+            // Extract image sources from img tags
+            Elements imgTags = doc.select("img");
+            List<String> imageSources = new ArrayList<>();
+            for (Element img : imgTags) {
+                String src = img.attr("src");
+                if (!src.isEmpty()) {
+                    imageSources.add(src);
+                }
+            }
+
+            // Select a random image source
+            Random random = new Random();
+            String randomImageSource = imageSources.get(random.nextInt(imageSources.size()));
+
+            return randomImageSource;
+        } catch (IOException e) {
+            System.out.println("Error: Failed to fetch URL: " + url);
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
